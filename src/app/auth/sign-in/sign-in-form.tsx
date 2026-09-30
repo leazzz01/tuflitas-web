@@ -18,6 +18,7 @@ export function SignInForm({ verified = false }: { verified?: boolean }) {
         <input autoComplete="current-password" name="password" required type="password" />
       </label>
       {state?.error && <p className="auth-error" role="alert">{state.error}</p>}
+      {state?.success && <p className="auth-success" role="status">{state.success}</p>}
       <button className="auth-submit" disabled={pending} type="submit">
         {pending ? "Ingresando…" : "Ingresar al panel"}
       </button>

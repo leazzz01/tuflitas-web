@@ -16,6 +16,7 @@ export default async function SignInPage({
         <h1>Panel de la dueña</h1>
         <p className="auth-copy">Iniciá sesión para administrar el catálogo y el stock.</p>
         <SignInForm verified={verified === "1"} />
+        <Link className="auth-secondary-link" href="/auth/forgot-password">Olvidé mi contraseña</Link>
         <Link className="auth-secondary-link" href="/auth/sign-up">Configurar el acceso inicial</Link>
       </section>
     </main>
