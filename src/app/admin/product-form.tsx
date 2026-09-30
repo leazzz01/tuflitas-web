@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { useActionState } from "react";
-import { createProductAction } from "./actions";
+import { createProductAction, type ProductActionState } from "./actions";
 import { ProductImagesInput } from "./product-images-input";
 
 type CategoryOption = {
@@ -18,13 +18,26 @@ type VariantRow = {
 };
 
 export function ProductForm({ categories }: { categories: CategoryOption[] }) {
-  const [state, formAction, pending] = useActionState(createProductAction, null);
   const formRef = useRef<HTMLFormElement>(null);
   const [variants, setVariants] = useState<VariantRow[]>([
     { id: 1, size: "Único", color: "Único", stock: "0" },
   ]);
   const [nextVariantId, setNextVariantId] = useState(2);
   const [photoInputKey, setPhotoInputKey] = useState(0);
+
+  function clearForm() {
+    formRef.current?.reset();
+    setVariants([{ id: 1, size: "Único", color: "Único", stock: "0" }]);
+    setNextVariantId(2);
+    setPhotoInputKey((current) => current + 1);
+  }
+
+  const [state, formAction, pending] = useActionState(async (previousState: ProductActionState | null, formData: FormData) => {
+    const result = await createProductAction(previousState, formData);
+    if (result.success) clearForm();
+    return result;
+  }, null);
+
   const variantsJson = JSON.stringify(
     variants.map(({ size, color, stock }) => ({ size, color, stock: Number(stock) })),
   );
@@ -42,13 +55,6 @@ export function ProductForm({ categories }: { categories: CategoryOption[] }) {
 
   function removeVariant(id: number) {
     setVariants((current) => current.length > 1 ? current.filter((variant) => variant.id !== id) : current);
-  }
-
-  function clearForm() {
-    formRef.current?.reset();
-    setVariants([{ id: 1, size: "Único", color: "Único", stock: "0" }]);
-    setNextVariantId(2);
-    setPhotoInputKey((current) => current + 1);
   }
 
   return (
