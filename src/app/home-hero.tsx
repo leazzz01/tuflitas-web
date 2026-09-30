@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type CSSProperties, type PointerEvent } from "react";
 import type { SiteContent } from "@/lib/site-content";
+import { optimizedImageUrl } from "@/lib/cloudinary-image";
 
 export function HomeHero({
   content,
@@ -91,7 +92,7 @@ export function HomeHero({
             onPointerUp={handlePointerUp}
             role="img"
             style={{
-              backgroundImage: `url("${imageUrl}")`,
+              backgroundImage: `url("${optimizedImageUrl(imageUrl, preview ? 900 : 1600)}")`,
               "--hero-slide-offset": `${slideDirection * 18}px`,
             } as CSSProperties}
           />

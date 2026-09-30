@@ -7,6 +7,7 @@ import { SiteContentForm } from "./site-content-form";
 import { CategoryManager, type AdminCategory } from "./category-manager";
 import { StockManager, type StockMovementRow, type StockVariantOption } from "./stock-manager";
 import { moveProductAction } from "./actions";
+import { optimizedImageUrl } from "@/lib/cloudinary-image";
 import type { SiteContent } from "@/lib/site-content";
 
 type TopViewedProduct = {
@@ -120,7 +121,7 @@ export function AdminDashboard({
                             aria-label={coverImage ? `Foto de ${product.name}` : undefined}
                             className={coverImage ? "product-edit-thumbnail" : "product-edit-thumbnail is-empty"}
                             role={coverImage ? "img" : undefined}
-                            style={coverImage ? { backgroundImage: `url("${coverImage}")` } : undefined}
+                            style={coverImage ? { backgroundImage: `url("${optimizedImageUrl(coverImage, 240)}")` } : undefined}
                           >
                             {!coverImage && <span>Sin foto</span>}
                           </span>
@@ -193,7 +194,7 @@ export function AdminDashboard({
                       aria-label={product.imageUrl ? `Foto de ${product.productName}` : `Sin foto de ${product.productName}`}
                       className="viewed-product-image"
                       role="img"
-                      style={product.imageUrl ? { backgroundImage: `url("${product.imageUrl}")` } : undefined}
+                      style={product.imageUrl ? { backgroundImage: `url("${optimizedImageUrl(product.imageUrl, 400)}")` } : undefined}
                     >
                       {!product.imageUrl && "Sin foto"}
                     </span>

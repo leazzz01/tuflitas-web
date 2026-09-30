@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, type PointerEvent } from "react";
 import { SiFacebook, SiInstagram, SiTiktok } from "react-icons/si";
+import { optimizedImageUrl } from "@/lib/cloudinary-image";
 import { DEFAULT_SITE_CONTENT, type SiteContent } from "@/lib/site-content";
 import { HomeHero } from "./home-hero";
 
@@ -358,7 +359,7 @@ export default function Home() {
                     aria-label={coverImage ? coverImage.altText || product.name : undefined}
                     style={{
                       backgroundColor: "var(--beige-soft)",
-                      backgroundImage: coverImage ? `url("${coverImage.url}")` : "none",
+                      backgroundImage: coverImage ? `url("${optimizedImageUrl(coverImage.url, 800)}")` : "none",
                     }}
                   >
                     {!coverImage && <span className="no-product-image">Foto próximamente</span>}
@@ -531,7 +532,7 @@ export default function Home() {
                     gallerySwipeStart.current = null;
                   }}
                   role={currentImage ? "img" : undefined}
-                  style={currentImage ? { backgroundImage: `url("${currentImage.url}")` } : undefined}
+                  style={currentImage ? { backgroundImage: `url("${optimizedImageUrl(currentImage.url, 1800)}")` } : undefined}
                 >
                   {!currentImage && <span>Foto próximamente</span>}
                 </div>
@@ -561,7 +562,7 @@ export default function Home() {
                           className={imageIndex === activeImageIndex ? "gallery-thumbnail is-active" : "gallery-thumbnail"}
                           key={image.id}
                           onClick={() => setActiveImageIndex(imageIndex)}
-                          style={{ backgroundImage: `url("${image.url}")` }}
+                          style={{ backgroundImage: `url("${optimizedImageUrl(image.url, 180)}")` }}
                           type="button"
                         />
                       ))}
@@ -656,7 +657,7 @@ export default function Home() {
                         aria-label={image ? image.altText || line.product.name : undefined}
                         style={{
                           backgroundColor: "var(--beige-soft)",
-                          backgroundImage: image ? `url("${image.url}")` : "none",
+                          backgroundImage: image ? `url("${optimizedImageUrl(image.url, 240)}")` : "none",
                         }}
                       />
                       <div className="cart-line-copy">

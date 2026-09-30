@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { optimizedImageUrl } from "@/lib/cloudinary-image";
 
 type SignedUpload = {
   cloudName?: string;
@@ -168,7 +169,7 @@ export function ProductImagesInput({
                 aria-label={`Vista previa de imagen ${index + 1}`}
                 className="photo-preview-image"
                 role="img"
-                style={{ backgroundImage: `url("${url}")` }}
+                style={{ backgroundImage: `url("${optimizedImageUrl(url, 320)}")` }}
               />
               <span className="photo-preview-caption">{index === 0 ? "Portada" : `Foto ${index + 1}`}</span>
               <div className="photo-preview-controls">
