@@ -267,7 +267,7 @@ export default function Home() {
 
       <header className="site-header">
         <a className="brand-mark" href="#inicio" aria-label="Tuflitas, inicio">
-          tuflitas<span>.</span>
+          Tuflitas
         </a>
         <nav className="main-nav" aria-label="Categorías principales">
           {categories.map((item) => (
@@ -438,7 +438,7 @@ export default function Home() {
       </section>
 
       <footer className="site-footer">
-        <a className="brand-mark" href="#inicio">tuflitas<span>.</span></a>
+        <a className="brand-mark" href="#inicio">Tuflitas</a>
         <p>Cositas hermosas para disfrutar en casa.</p>
         <a className="site-footer-whatsapp" href={`https://wa.me/${whatsappNumber}`} target="_blank" rel="noreferrer">WhatsApp · Salta</a>
         <nav aria-label="Redes sociales" className="social-links">

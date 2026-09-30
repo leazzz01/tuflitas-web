@@ -11,7 +11,7 @@ export default async function ResetPasswordPage({
   return (
     <main className="auth-page">
       <section className="auth-panel">
-        <Link className="brand-mark" href="/">tuflitas<span>.</span></Link>
+        <Link className="brand-mark" href="/">Tuflitas</Link>
         <p className="eyebrow">Recuperar acceso</p>
         <h1>Crear contraseña nueva</h1>
         {email ? (

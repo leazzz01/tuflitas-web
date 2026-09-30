@@ -11,7 +11,7 @@ export default async function VerifyPage({
   return (
     <main className="auth-page">
       <section className="auth-panel">
-        <Link className="brand-mark" href="/">tuflitas<span>.</span></Link>
+        <Link className="brand-mark" href="/">Tuflitas</Link>
         <p className="eyebrow">Verificación</p>
         <h1>Confirmar email</h1>
         <VerifyForm email={email} />

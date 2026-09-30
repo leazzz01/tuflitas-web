@@ -226,7 +226,7 @@ export default async function AdminPage() {
   return (
     <main className="admin-page">
       <header className="admin-header">
-        <Link className="brand-mark" href="/">tuflitas<span>.</span></Link>
+        <Link className="brand-mark" href="/">Tuflitas</Link>
         <form action={signOutAction}>
           <button className="admin-signout" type="submit">Cerrar sesión</button>
         </form>

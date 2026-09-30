@@ -11,7 +11,7 @@ export default async function SignInPage({
   return (
     <main className="auth-page">
       <section className="auth-panel">
-        <Link className="brand-mark" href="/">tuflitas<span>.</span></Link>
+        <Link className="brand-mark" href="/">Tuflitas</Link>
         <p className="eyebrow">Acceso privado</p>
         <h1>Panel de la dueña</h1>
         <p className="auth-copy">Iniciá sesión para administrar el catálogo y el stock.</p>
