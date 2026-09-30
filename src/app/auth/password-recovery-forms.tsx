@@ -18,20 +18,30 @@ export function RequestPasswordResetForm() {
       </label>
       {state?.error && <p className="auth-error" role="alert">{state.error}</p>}
       {state?.success && <p className="auth-success" role="status">{state.success}</p>}
-      <button className="auth-submit" disabled={pending} type="submit">
-        {pending ? "Enviando…" : "Enviar enlace de recuperación"}
-      </button>
+      {state?.email ? (
+        <Link className="auth-secondary-link" href={`/auth/reset-password?email=${encodeURIComponent(state.email)}`}>
+          Ingresar código de recuperación
+        </Link>
+      ) : (
+        <button className="auth-submit" disabled={pending} type="submit">
+          {pending ? "Enviando…" : "Enviar código de recuperación"}
+        </button>
+      )}
       <Link className="auth-secondary-link" href="/auth/sign-in">Volver al inicio de sesión</Link>
     </form>
   );
 }
 
-export function ResetPasswordForm({ token }: { token: string }) {
+export function ResetPasswordForm({ email }: { email: string }) {
   const [state, formAction, pending] = useActionState(resetOwnerPasswordAction, null);
 
   return (
     <form action={formAction} className="auth-form">
-      <input name="token" type="hidden" value={token} />
+      <input name="email" type="hidden" value={email} />
+      <label>
+        Código recibido por email
+        <input autoComplete="one-time-code" inputMode="numeric" maxLength={32} name="otp" required />
+      </label>
       <label>
         Nueva contraseña
         <input autoComplete="new-password" maxLength={128} minLength={12} name="password" required type="password" />
