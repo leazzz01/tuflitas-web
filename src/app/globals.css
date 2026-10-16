@@ -2162,6 +2162,84 @@ select:focus-visible {
   font-size: 15px;
 }
 
+.cart-total-detail {
+  margin-bottom: 8px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.payment-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 0 0 14px;
+  border: 0;
+  padding: 0;
+}
+
+.payment-options legend {
+  margin-bottom: 8px;
+  padding: 0;
+  color: var(--ink);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.payment-options label {
+  display: flex;
+  min-height: 40px;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 6px 9px;
+  color: var(--ink);
+  cursor: pointer;
+  font-size: 10px;
+  line-height: 1.25;
+}
+
+.payment-options label.is-active {
+  border-color: var(--beige-contrast);
+  background: var(--paper);
+}
+
+.payment-options input {
+  flex: 0 0 auto;
+  accent-color: var(--beige-contrast);
+}
+
+.payment-note {
+  margin: -4px 0 12px;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.line-payment {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.line-payment button {
+  min-height: 28px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 0 10px;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  font-size: 10px;
+}
+
+.line-payment button.is-active {
+  border-color: var(--beige-contrast);
+  background: var(--beige-contrast);
+  color: var(--white);
+}
+
 .copy-order-button {
   width: 100%;
   min-height: 48px;
@@ -2353,6 +2431,23 @@ select:focus-visible {
   background: var(--white);
   color: var(--ink);
   font-size: 12px;
+}
+
+.modal-price-notices {
+  display: grid;
+  width: 100%;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.modal-price-notices p {
+  margin: 0;
+  border-left: 2px solid var(--beige-contrast);
+  padding: 7px 10px;
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 11px;
+  line-height: 1.4;
 }
 
 .modal-add-button {

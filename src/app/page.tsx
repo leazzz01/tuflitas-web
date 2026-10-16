@@ -48,6 +48,17 @@ type CartLine = {
   quantity: number;
 };
 
+type PaymentMode = "cash" | "card" | "mixed" | "inquiry";
+type PaymentMethod = "cash" | "card";
+
+const CARD_SURCHARGE_RATE = 0.1;
+const paymentModes: { value: PaymentMode; label: string }[] = [
+  { value: "cash", label: "Efectivo / transferencia" },
+  { value: "card", label: "Tarjeta (+10%)" },
+  { value: "mixed", label: "Elegir por producto" },
+  { value: "inquiry", label: "Consultar" },
+];
+
 const whatsappNumber = "543878648215";
 const currency = new Intl.NumberFormat("es-AR", {
   style: "currency",
@@ -72,6 +83,8 @@ export default function Home() {
   const [cartOpen, setCartOpen] = useState(false);
   const [activeProduct, setActiveProduct] = useState<Product | null>(null);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [paymentMode, setPaymentMode] = useState<PaymentMode>("cash");
+  const [lineMethods, setLineMethods] = useState<Record<string, PaymentMethod>>({});
   const gallerySwipeStart = useRef<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
@@ -181,19 +194,66 @@ export default function Home() {
   const categoryOptions = [{ name: "Todo", slug: "all" }, ...categories];
 
   const cartCount = cart.reduce((total, line) => total + line.quantity, 0);
-  const cartTotal = cart.reduce(
-    (total, line) => total + effectivePrice(line.product) * line.quantity,
-    0,
-  );
-  const orderLines = cart
-    .map(
-      (line) =>
-        `${line.quantity} x ${line.product.name} · talle ${line.variant.size} · color ${line.variant.color} · ${currency.format(effectivePrice(line.product) * line.quantity)}`,
-    )
-    .join("\n");
-  const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
-    `Hola, quiero consultar por este pedido:\n${orderLines}\nTotal: ${currency.format(cartTotal)}`,
-  )}`;
+  const lineKey = (line: CartLine) => `${line.product.id}:${line.variant.id}`;
+  const pricedLines = cart.map((line) => {
+    const base = effectivePrice(line.product) * line.quantity;
+    const method: PaymentMethod = paymentMode === "card"
+      ? "card"
+      : paymentMode === "mixed" ? lineMethods[lineKey(line)] ?? "cash" : "cash";
+    const cardSurcharge = Math.round(base * CARD_SURCHARGE_RATE);
+    const surcharge = method === "card" ? cardSurcharge : 0;
+    return { line, base, method, cardSurcharge, surcharge, total: base + surcharge };
+  });
+  const cartSubtotal = pricedLines.reduce((total, item) => total + item.base, 0);
+  const cartSurcharge = pricedLines.reduce((total, item) => total + item.surcharge, 0);
+  const cartTotal = cartSubtotal + cartSurcharge;
+  const inquiryCardTotal = cartSubtotal
+    + pricedLines.reduce((total, item) => total + item.cardSurcharge, 0);
+
+  function buildOrderMessage() {
+    const describe = (line: CartLine) =>
+      `${line.quantity} x ${line.product.name} · talle ${line.variant.size} · color ${line.variant.color}`;
+    const cardPrice = (item: (typeof pricedLines)[number]) =>
+      `${currency.format(item.base)} + 10% = ${currency.format(item.total)}`;
+
+    if (paymentMode === "inquiry") {
+      const lines = pricedLines.map((item) =>
+        `- ${describe(item.line)}\n  Efectivo/transferencia: ${currency.format(item.base)}\n  Tarjeta (+10%): ${currency.format(item.base + item.cardSurcharge)}`,
+      );
+      return [
+        "Hola, quiero consultar disponibilidad, colores y talles de estos productos:",
+        ...lines,
+        "",
+        `Total efectivo/transferencia: ${currency.format(cartSubtotal)}`,
+        `Total con tarjeta (+10%): ${currency.format(inquiryCardTotal)}`,
+      ].join("\n");
+    }
+
+    const lines = pricedLines.map((item) => {
+      if (paymentMode === "cash") return `- ${describe(item.line)} · ${currency.format(item.base)}`;
+      if (paymentMode === "card") return `- ${describe(item.line)} · ${cardPrice(item)}`;
+      return item.method === "card"
+        ? `- ${describe(item.line)} · Tarjeta: ${cardPrice(item)}`
+        : `- ${describe(item.line)} · Efectivo/transferencia: ${currency.format(item.base)}`;
+    });
+    const paymentLabel = paymentMode === "cash"
+      ? "Efectivo o transferencia"
+      : paymentMode === "card" ? "Tarjeta (recargo del 10%)" : "Combinada, según cada producto";
+    const summary = cartSurcharge > 0
+      ? [`Subtotal: ${currency.format(cartSubtotal)}`, `Recargo por tarjeta (10%): ${currency.format(cartSurcharge)}`]
+      : [];
+
+    return [
+      "Hola, quiero hacer este pedido:",
+      ...lines,
+      "",
+      `Forma de pago: ${paymentLabel}`,
+      ...summary,
+      `Total: ${currency.format(cartTotal)}`,
+    ].join("\n");
+  }
+
+  const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(buildOrderMessage())}`;
 
   function trackProductMetric(productId: string, event: "view" | "cart_addition") {
     if (event === "view") {
@@ -601,6 +661,10 @@ export default function Home() {
                     ))}
                   </select>
                 </label>
+                <div className="modal-price-notices">
+                  <p>Todos los precios mostrados son con Efectivo/Transferencia</p>
+                  <p>Consultar talles disponibles</p>
+                </div>
                 <button
                   className="modal-add-button"
                   disabled={!selectedVariant}
@@ -677,15 +741,64 @@ export default function Home() {
                             onClick={() => updateQuantity(line.product.id, line.variant.id, 1)}
                           >+</button>
                         </div>
+                        {paymentMode === "mixed" && (
+                          <div className="line-payment" role="group" aria-label={`Forma de pago de ${line.product.name}`}>
+                            {(["cash", "card"] as const).map((method) => (
+                              <button
+                                aria-pressed={(lineMethods[lineKey(line)] ?? "cash") === method}
+                                className={(lineMethods[lineKey(line)] ?? "cash") === method ? "is-active" : undefined}
+                                key={method}
+                                onClick={() => setLineMethods((current) => ({ ...current, [lineKey(line)]: method }))}
+                                type="button"
+                              >
+                                {method === "cash" ? "Efectivo / transf." : "Tarjeta (+10%)"}
+                              </button>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     </div>
                     );
                   })}
                 </div>
                 <div className="cart-summary">
-                  <div className="cart-total"><span>Total</span><strong>{currency.format(cartTotal)}</strong></div>
+                  <fieldset className="payment-options">
+                    <legend>Forma de pago</legend>
+                    {paymentModes.map((option) => (
+                      <label className={paymentMode === option.value ? "is-active" : undefined} key={option.value}>
+                        <input
+                          checked={paymentMode === option.value}
+                          name="payment-mode"
+                          onChange={() => setPaymentMode(option.value)}
+                          type="radio"
+                          value={option.value}
+                        />
+                        <span>{option.label}</span>
+                      </label>
+                    ))}
+                  </fieldset>
+                  {paymentMode === "mixed" && (
+                    <p className="payment-note">Elegí en cada producto si lo pagás con tarjeta o en efectivo/transferencia.</p>
+                  )}
+                  {paymentMode === "inquiry" ? (
+                    <>
+                      <p className="payment-note">Enviaremos ambos precios para que consultes disponibilidad, colores y talles.</p>
+                      <div className="cart-total"><span>Efectivo / transferencia</span><strong>{currency.format(cartSubtotal)}</strong></div>
+                      <div className="cart-total"><span>Tarjeta (+10%)</span><strong>{currency.format(inquiryCardTotal)}</strong></div>
+                    </>
+                  ) : (
+                    <>
+                      {cartSurcharge > 0 && (
+                        <>
+                          <div className="cart-total cart-total-detail"><span>Subtotal</span><span>{currency.format(cartSubtotal)}</span></div>
+                          <div className="cart-total cart-total-detail"><span>Recargo por tarjeta (10%)</span><span>{currency.format(cartSurcharge)}</span></div>
+                        </>
+                      )}
+                      <div className="cart-total"><span>Total</span><strong>{currency.format(cartTotal)}</strong></div>
+                    </>
+                  )}
                   <a className="copy-order-button" href={whatsappUrl} target="_blank" rel="noreferrer">
-                    Consultar por WhatsApp
+                    {paymentMode === "inquiry" ? "Consultar por WhatsApp" : "Enviar pedido por WhatsApp"}
                   </a>
                   <p className="copy-hint" role="status">
                     Se abrirá el chat de Tuflitas con tu pedido preparado.
