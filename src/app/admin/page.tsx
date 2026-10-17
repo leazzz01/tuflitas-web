@@ -4,6 +4,7 @@ import { getOwnerAccess } from "@/lib/auth/owner";
 import { getDatabase } from "@/lib/db";
 import { DEFAULT_SITE_CONTENT, type SiteContent } from "@/lib/site-content";
 import { signOutAction } from "@/app/auth/actions";
+import { ThemeToggle } from "../theme-toggle";
 import { AdminDashboard } from "./admin-dashboard";
 import type { EditableProduct } from "./product-edit-form";
 import type { StockMovementRow, StockVariantOption } from "./stock-manager";
@@ -227,9 +228,12 @@ export default async function AdminPage() {
     <main className="admin-page">
       <header className="admin-header">
         <Link className="brand-mark" href="/">Tuflitas</Link>
-        <form action={signOutAction}>
-          <button className="admin-signout" type="submit">Cerrar sesión</button>
-        </form>
+        <div className="admin-header-actions">
+          <ThemeToggle />
+          <form action={signOutAction}>
+            <button className="admin-signout" type="submit">Cerrar sesión</button>
+          </form>
+        </div>
       </header>
       <section className="admin-content">
         <p className="eyebrow">Administración · {access.email}</p>

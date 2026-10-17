@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState, type PointerEvent } from "react";
 import { SiFacebook, SiInstagram, SiTiktok } from "react-icons/si";
 import { optimizedImageUrl } from "@/lib/cloudinary-image";
+import { ThemeToggle } from "./theme-toggle";
 import { DEFAULT_SITE_CONTENT, type SiteContent } from "@/lib/site-content";
 import { HomeHero } from "./home-hero";
 
@@ -336,9 +337,12 @@ export default function Home() {
             </a>
           ))}
         </nav>
-        <button className="bag-button" type="button" onClick={() => setCartOpen(true)}>
-          Mi bolsa <span>{cartCount}</span>
-        </button>
+        <div className="header-actions">
+          <ThemeToggle />
+          <button className="bag-button" type="button" onClick={() => setCartOpen(true)}>
+            Mi bolsa <span>{cartCount}</span>
+          </button>
+        </div>
       </header>
 
       <HomeHero content={siteContent} />
