@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import { ProductForm } from "./product-form";
-import { ProductEditForm, type EditableProduct } from "./product-edit-form";
+import { InventoryManager } from "./inventory-manager";
+import type { EditableProduct } from "./product-edit-form";
 import { SiteContentForm } from "./site-content-form";
 import { CategoryManager, type AdminCategory } from "./category-manager";
 import { StockManager, type StockMovementRow, type StockVariantOption } from "./stock-manager";
-import { moveProductAction } from "./actions";
 import { optimizedImageUrl } from "@/lib/cloudinary-image";
 import type { SiteContent } from "@/lib/site-content";
 
@@ -39,8 +39,7 @@ export function AdminDashboard({
   content: SiteContent;
   siteContentReady: boolean;
 }) {
-  const [section, setSection] = useState<"products" | "categories" | "stock" | "metrics" | "page">("products");
-  const activeProducts = products.filter((product) => product.isActive);
+  const [section, setSection] = useState<"products" | "inventory" | "categories" | "stock" | "metrics" | "page">("products");
   const activeCategories = categories.filter((category) => category.isActive);
 
   return (
@@ -53,7 +52,16 @@ export function AdminDashboard({
           role="tab"
           type="button"
         >
-          Productos
+          Nuevo producto
+        </button>
+        <button
+          aria-selected={section === "inventory"}
+          className={section === "inventory" ? "admin-tab is-active" : "admin-tab"}
+          onClick={() => setSection("inventory")}
+          role="tab"
+          type="button"
+        >
+          Inventario
         </button>
         <button
           aria-selected={section === "categories"}
@@ -99,61 +107,13 @@ export function AdminDashboard({
             <h2 id="new-product-title">Nuevo producto</h2>
             <ProductForm categories={activeCategories} />
           </section>
-
-          <section className="admin-section" aria-labelledby="inventory-title">
-            <div className="admin-section-heading">
-              <h2 id="inventory-title">Inventario</h2>
-              <span>{products.length} productos</span>
-            </div>
-            {products.length === 0 ? (
-              <p className="inventory-empty">Todavía no hay productos cargados.</p>
-            ) : (
-              <div className="product-edit-list">
-                {products.map((product) => {
-                  const position = activeProducts.findIndex((item) => item.id === product.id);
-                  const coverImage = product.images[0]?.url;
-
-                  return (
-                    <div className={product.isActive ? "product-admin-row" : "product-admin-row is-archived"} key={product.id}>
-                      <details className="product-edit-item">
-                        <summary className="product-edit-summary">
-                          <span
-                            aria-label={coverImage ? `Foto de ${product.name}` : undefined}
-                            className={coverImage ? "product-edit-thumbnail" : "product-edit-thumbnail is-empty"}
-                            role={coverImage ? "img" : undefined}
-                            style={coverImage ? { backgroundImage: `url("${optimizedImageUrl(coverImage, 240)}")` } : undefined}
-                          >
-                            {!coverImage && <span>Sin foto</span>}
-                          </span>
-                          <span className="product-edit-summary-copy">
-                            <span className="product-edit-name">{product.name}</span>
-                            <span>{product.category}{product.isActive ? "" : " · Archivado"}</span>
-                          </span>
-                          <span>{product.variants.filter((variant) => variant.isActive).reduce((total, variant) => total + variant.stock, 0)} unidades</span>
-                        </summary>
-                        <ProductEditForm categories={categories} product={product} />
-                      </details>
-                      {product.isActive && (
-                        <div className="product-order-controls" aria-label={`Orden de ${product.name}`}>
-                          <form action={moveProductAction}>
-                            <input name="productId" type="hidden" value={product.id} />
-                            <input name="direction" type="hidden" value="up" />
-                            <button aria-label={`Subir ${product.name}`} disabled={position <= 0} type="submit">↑</button>
-                          </form>
-                          <form action={moveProductAction}>
-                            <input name="productId" type="hidden" value={product.id} />
-                            <input name="direction" type="hidden" value="down" />
-                            <button aria-label={`Bajar ${product.name}`} disabled={position >= activeProducts.length - 1} type="submit">↓</button>
-                          </form>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </section>
         </div>
+      ) : section === "inventory" ? (
+        <section aria-label="Inventario" className="admin-section" role="tabpanel">
+          <h2>Inventario</h2>
+          <p className="admin-helper-text">Buscá un producto y tocalo para editar todos sus datos.</p>
+          <InventoryManager categories={categories} products={products} />
+        </section>
       ) : section === "categories" ? (
         <section aria-label="Administrar categorías" className="admin-section" role="tabpanel">
           <h2>Categorías de productos</h2>

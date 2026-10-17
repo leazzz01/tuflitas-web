@@ -101,7 +101,7 @@ export default async function AdminPage() {
           where image.product_id = product.id
         ) as image_data on true
         order by product.is_active desc, product.display_order asc, product.created_at desc
-        limit 50
+        limit 500
       `,
       sql`
         select
